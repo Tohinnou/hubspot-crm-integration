@@ -26,6 +26,17 @@ def get_contacts(portal_id:str) -> dict:
     return response.json()
   
 def create_contact(properties: dict, portal_id: str = None) -> dict:
+    """
+    Create a new contact in HubSpot CRM.
+    
+    Args:
+        properties: Contact fields (firstname, lastname, email, etc.)
+        portal_id: HubSpot portal ID. Uses default token if None.
+    
+    Returns:
+        HubSpot API response with contact id and properties.
+    """
+    
     response = httpx.post(
         "https://api.hubapi.com/crm/v3/objects/contacts",
         headers=get_headers(portal_id),
@@ -50,6 +61,22 @@ def get_contact_properties(contact_id: str, properties: list, portal_id: str = N
     return response.json().get("properties", {})
   
 def score_contact(contact_id: str, portal_id: str = None) -> int:
+
+    """
+    Calculate and save lead score for a contact.
+    
+    Scoring criteria:
+        - Lead source (referral=40, google=30, facebook=20, organic=10)
+        - Has associated deal (+30)
+        - Lifecycle stage (opportunity=30, lead=10)
+    
+    Args:
+        contact_id: HubSpot contact ID
+        portal_id: HubSpot portal ID
+    
+    Returns:
+        Calculated score (0-100)
+    """
     properties = get_contact_properties(
         contact_id,
         ["lead_source_custom", "lifecyclestage", "first_deal_created_date"],

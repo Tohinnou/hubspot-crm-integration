@@ -12,6 +12,32 @@ A production-ready FastAPI backend for HubSpot CRM automation — contacts, deal
 - **Custom Properties** — Extend HubSpot data model with business-specific fields
 - **Multi-portal Support** — Manage multiple HubSpot accounts simultaneously
 
+
+## Architecture
+
+```
+┌─────────────────┐         ┌──────────────────────┐
+│   React Form    │──POST──▶│   FastAPI Backend    │
+│  (port 3000)    │         │    (port 8000)        │
+└─────────────────┘         └──────────┬───────────┘
+                                        │
+                             ┌──────────▼───────────┐
+                             │   HubSpot API v3     │
+                             │                      │
+                             │  • Contacts CRUD     │
+                             │  • Deals Pipeline    │
+                             │  • Custom Properties │
+                             │  • Webhooks          │
+                             └──────────────────────┘
+
+OAuth 2.0 Flow:
+Client Browser ──▶ /oauth/install ──▶ HubSpot Authorize
+                                              │
+                                    /oauth/callback
+                                              │
+                                    token_manager.save()
+```
+
 ## Tech Stack
 
 - **Python 3.11+**

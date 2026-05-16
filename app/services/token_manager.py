@@ -26,6 +26,19 @@ def load_all_tokens() -> dict:
    
    
 def get_valid_token(portal_id: str) -> str:
+    """
+    Return a valid access token for the given portal.
+    Automatically refreshes if expired.
+    
+    Args:
+        portal_id: HubSpot portal ID
+    
+    Returns:
+        Valid access token string
+    
+    Raises:
+        Exception: If no token found for portal_id
+    """
     tokens = load_all_tokens()
     if portal_id not in tokens:
         raise Exception(f"Aucun token pour portal {portal_id}")

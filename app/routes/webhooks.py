@@ -18,6 +18,12 @@ async def receive_webhook(request: Request):
 
             score = score_contact(contact_id)
             print(f"Score enregistré : {score}/100")
+        if event.get("subscriptionType") == "contact.propertyChange":
+          if event.get("propertyName") == "lifecyclestage":
+              contact_id = str(event.get("objectId"))
+              portal_id = str(event.get("portalId"))
+              
+              score = score_contact(contact_id, portal_id)
 
     return {"status": "ok"}
 
