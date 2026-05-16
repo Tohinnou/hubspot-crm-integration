@@ -21,9 +21,6 @@ async def receive_webhook(request: Request):
 
     return {"status": "ok"}
 
-@router.get("/webhook")
-async def verify_webhook():
-    return {"status": "webhook endpoint actif"}
   
 @router.post("/contacts")
 async def create_new_contact(contact: ContactCreate, portal_id: str = "148496292"):
@@ -33,4 +30,25 @@ async def create_new_contact(contact: ContactCreate, portal_id: str = "148496292
     return {
         "id": result.get("id"),
         "status": "created"
+    }
+    
+@router.post("/leads")
+async def capture_lead(contact: ContactCreate, portal_id: str = "148496292"):
+    # 1. Créer le contact
+    result = create_contact(contact.model_dump(exclude_none=True), portal_id)
+    
+    contact_id = result.get("id")
+    if not contact_id:
+        return {"status": "error", "message": result.get("message", "Unknown error")}
+
+    # 2. Scorer immédiatement
+    score = score_contact(contact_id, portal_id)
+
+    return {
+        "status": "success",
+        "contact_id": contact_id,
+        "name": f"{contact.firstname} {contact.lastname}",
+        "email": contact.email,
+        "lead_score": score,
+        "message": f"Lead captured and scored successfully"
     }
