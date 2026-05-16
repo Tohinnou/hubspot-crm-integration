@@ -22,6 +22,7 @@ A production-ready FastAPI backend for HubSpot CRM automation — contacts, deal
 
 ## Project Structure
 
+```
 crm-integration/
 ├── main.py                 # Entry point
 ├── app/
@@ -36,8 +37,9 @@ crm-integration/
 │   └── models/
 │       └── contact.py      # Pydantic models
 └── tests/
-├── test_connection.py
-└── test_webhook.py
+    ├── test_connection.py
+    └── test_webhook.py
+```
 
 ## Quick Start
 
