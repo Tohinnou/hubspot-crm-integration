@@ -56,3 +56,21 @@
 2026-05-18 08:04:17 | app.services.retry | WARNING | Rate limit hit — retrying in 0.2s (attempt 2/3)
 2026-05-18 08:04:17 | app.services.retry | WARNING | Rate limit hit — retrying in 0.1s (attempt 1/2)
 2026-05-18 08:04:17 | app.services.retry | ERROR | Max retries reached for rate limit error: HubSpot API Error 429: Rate limit exceeded
+2026-05-18 08:26:40 | app.services.token_manager | INFO | Tokens sauvegardés pour portal test_portal_123
+2026-05-18 08:26:40 | app.services.token_manager | ERROR | No token found for portal nonexistent_portal
+2026-05-18 08:26:40 | app.services.hubspot | INFO | Creating contact — email: test@example.com — portal: None
+2026-05-18 08:26:40 | app.services.hubspot | INFO | Creating contact — email: test@example.com — portal: None
+2026-05-18 08:26:40 | app.services.hubspot_response | ERROR | HubSpot API error 400: Property does not exist — correlationId: abc123
+2026-05-18 08:26:40 | app.services.retry | ERROR | Non-retryable error: HubSpot API Error 400: Property does not exist
+2026-05-18 08:27:01 | app.services.retry | WARNING | Rate limit hit — retrying in 0.1s (attempt 1/3)
+2026-05-18 08:27:01 | app.services.retry | WARNING | Rate limit hit — retrying in 0.2s (attempt 2/3)
+2026-05-18 08:27:02 | app.services.retry | WARNING | Rate limit hit — retrying in 0.1s (attempt 1/2)
+2026-05-18 08:27:02 | app.services.retry | ERROR | Max retries reached for rate limit error: HubSpot API Error 429: Rate limit exceeded
+2026-05-18 08:28:10 | app.services.hubspot | INFO | Creating contact — email: test@example.com — portal: None
+2026-05-18 08:28:10 | app.services.hubspot | INFO | Creating contact — email: test@example.com — portal: None
+2026-05-18 08:28:10 | app.services.hubspot_response | ERROR | HubSpot API error 400: Property does not exist — correlationId: abc123
+2026-05-18 08:28:10 | app.services.retry | ERROR | Non-retryable error: HubSpot API Error 400: Property does not exist
+2026-05-18 08:28:21 | app.services.hubspot | INFO | Creating contact — email: test@example.com — portal: None
+2026-05-18 08:28:21 | app.services.hubspot | INFO | Creating contact — email: test@example.com — portal: None
+2026-05-18 08:28:21 | app.services.hubspot_response | ERROR | HubSpot API error 400: Property does not exist — correlationId: abc123
+2026-05-18 08:28:21 | app.services.retry | ERROR | Non-retryable error: HubSpot API Error 400: Property does not exist
