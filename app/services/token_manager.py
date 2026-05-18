@@ -2,6 +2,9 @@ import httpx
 import json
 from datetime import datetime, timedelta
 from app.config import settings
+from app.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 
 def save_tokens(portal_id: str, access_token: str, refresh_token: str, expires_in: int):
@@ -14,7 +17,7 @@ def save_tokens(portal_id: str, access_token: str, refresh_token: str, expires_i
       
     with open(settings.TOKEN_FILE, "w") as f:
         json.dump(tokens, f, indent=2)
-    print(f"Tokens sauvegardés pour portal {portal_id}")
+    logger.info(f"Tokens sauvegardés pour portal {portal_id}")
     
     
 def load_all_tokens() -> dict:
@@ -41,6 +44,7 @@ def get_valid_token(portal_id: str) -> str:
     """
     tokens = load_all_tokens()
     if portal_id not in tokens:
+        logger.error(f"No token found for portal {portal_id}")
         raise Exception(f"Aucun token pour portal {portal_id}")
 
     token_data = tokens[portal_id]
@@ -48,8 +52,10 @@ def get_valid_token(portal_id: str) -> str:
 
     # Token expiré → refresh automatique
     if datetime.now() >= expires_at:
-        print(f"Token expiré pour {portal_id} — refresh en cours...")
+        logger.warning(f"Token expiré pour {portal_id} — refresh en cours...")
         return refresh_access_token(portal_id, token_data["refresh_token"])
+
+    logger.debug(f"Token valid for portal {portal_id}")
 
     return token_data["access_token"] 
   
@@ -70,5 +76,6 @@ def refresh_access_token(portal_id: str, refresh_token: str) -> str:
     expires_in = tokens["expires_in"]
 
     save_tokens(portal_id, new_access_token, new_refresh_token, expires_in)
-    print(f"Token rafraîchi pour portal {portal_id}")
+    
+    logger.info(f"Token refreshed for portal {portal_id}")
     return new_access_token

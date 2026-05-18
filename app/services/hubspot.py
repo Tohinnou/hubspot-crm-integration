@@ -2,6 +2,11 @@ import httpx
 from app.config import settings
 from app.services.token_manager import get_valid_token
 from app.services.lead_scorer import calculate_score
+from app.services.hubspot_response import handle_response
+
+from app.logger import setup_logger
+
+logger = setup_logger(__name__)
 
 def get_headers(portal_id: str = None) -> dict:
     if portal_id:
@@ -23,7 +28,7 @@ def get_contacts(portal_id:str) -> dict:
         "https://api.hubapi.com/crm/v3/objects/contacts",
         headers=get_headers(portal_id)
     )
-    return response.json()
+    return handle_response(response)
   
 def create_contact(properties: dict, portal_id: str = None) -> dict:
     """
@@ -36,21 +41,24 @@ def create_contact(properties: dict, portal_id: str = None) -> dict:
     Returns:
         HubSpot API response with contact id and properties.
     """
+    logger.info(f"Creating contact — email: {properties.get('email')} — portal: {portal_id}")
+
     
     response = httpx.post(
         "https://api.hubapi.com/crm/v3/objects/contacts",
         headers=get_headers(portal_id),
         json={"properties": properties}
     )
-    return response.json()
-  
+    return handle_response(response)
+   
 def update_contact(contact_id: str, properties: dict, portal_id: str = None) -> dict:
+    logger.info(f"Updating contact — ID: {contact_id} — portal: {portal_id}")
     response = httpx.patch(
         f"https://api.hubapi.com/crm/v3/objects/contacts/{contact_id}",
         headers=get_headers(portal_id),
         json={"properties": properties}
     )
-    return response.json()
+    return handle_response(response)
   
 def get_contact_properties(contact_id: str, properties: list, portal_id: str = None) -> dict:
     response = httpx.get(
@@ -58,7 +66,7 @@ def get_contact_properties(contact_id: str, properties: list, portal_id: str = N
         headers=get_headers(portal_id),
         params={"properties": ",".join(properties)}
     )
-    return response.json().get("properties", {})
+    return handle_response(response).get("properties", {})
   
 def score_contact(contact_id: str, portal_id: str = None) -> int:
 
@@ -77,6 +85,9 @@ def score_contact(contact_id: str, portal_id: str = None) -> int:
     Returns:
         Calculated score (0-100)
     """
+    
+    logger.info(f"Scoring contact {contact_id}")
+
     properties = get_contact_properties(
         contact_id,
         ["lead_source_custom", "lifecyclestage", "first_deal_created_date"],
@@ -84,4 +95,5 @@ def score_contact(contact_id: str, portal_id: str = None) -> int:
     )
     score = calculate_score(properties)
     update_contact(contact_id, {"lead_score_custom": score}, portal_id)
+    logger.info(f"Contact {contact_id} scored: {score}/100")
     return score

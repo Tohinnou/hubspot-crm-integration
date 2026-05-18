@@ -1,0 +1,42 @@
+2026-05-16 21:39:10 | app.services.hubspot | INFO | Creating contact — email: log.test@example.com — portal: 148496292
+2026-05-16 21:39:10 | app.services.token_manager | ERROR | No token found for portal 148496292
+2026-05-16 21:39:11 | app.services.hubspot | INFO | Scoring contact 779493301471
+2026-05-16 21:39:11 | app.services.token_manager | ERROR | No token found for portal 148496292
+2026-05-16 21:39:11 | app.services.hubspot | INFO | Updating contact — ID: 779493301471 — portal: 148496292
+2026-05-16 21:39:11 | app.services.token_manager | ERROR | No token found for portal 148496292
+2026-05-16 21:39:12 | app.services.hubspot | INFO | Contact 779493301471 scored: 20/100
+2026-05-16 21:39:12 | app.routes.webhooks | INFO | Webhook received — 1 event(s)
+2026-05-16 21:39:12 | app.routes.webhooks | INFO | Nouveau contact : 779493301471 sur portal 148496292
+2026-05-16 21:39:12 | app.services.hubspot | INFO | Scoring contact 779493301471
+2026-05-16 21:39:13 | app.services.hubspot | INFO | Updating contact — ID: 779493301471 — portal: None
+2026-05-16 21:39:14 | app.services.hubspot | INFO | Contact 779493301471 scored: 20/100
+2026-05-16 21:39:14 | app.routes.webhooks | INFO | Score enregistré : 20/100
+2026-05-16 21:42:29 | app.services.hubspot | INFO | Creating contact — email: hojm@gmail.com — portal: 148496292
+2026-05-16 21:42:29 | app.services.token_manager | ERROR | No token found for portal 148496292
+2026-05-16 21:42:30 | app.services.hubspot | INFO | Scoring contact 779492936913
+2026-05-16 21:42:30 | app.services.token_manager | ERROR | No token found for portal 148496292
+2026-05-16 21:42:30 | app.services.hubspot | INFO | Updating contact — ID: 779492936913 — portal: 148496292
+2026-05-16 21:42:30 | app.services.token_manager | ERROR | No token found for portal 148496292
+2026-05-16 21:42:31 | app.services.hubspot | INFO | Contact 779492936913 scored: 20/100
+2026-05-16 21:42:31 | app.routes.webhooks | INFO | Webhook received — 1 event(s)
+2026-05-16 21:42:31 | app.routes.webhooks | INFO | Nouveau contact : 779492936913 sur portal 148496292
+2026-05-16 21:42:31 | app.services.hubspot | INFO | Scoring contact 779492936913
+2026-05-16 21:42:32 | app.services.hubspot | INFO | Updating contact — ID: 779492936913 — portal: None
+2026-05-16 21:42:33 | app.services.hubspot | INFO | Contact 779492936913 scored: 20/100
+2026-05-16 21:42:33 | app.routes.webhooks | INFO | Score enregistré : 20/100
+2026-05-17 11:05:23 | app.routes.webhooks | INFO | Webhook received — 1 event(s)
+2026-05-17 11:05:23 | app.routes.webhooks | INFO | Nouveau contact : 779698131158 sur portal 148496292
+2026-05-17 11:05:23 | app.services.hubspot | INFO | Scoring contact 779698131158
+2026-05-17 11:05:24 | app.services.hubspot | INFO | Updating contact — ID: 779698131158 — portal: None
+2026-05-17 11:05:25 | app.services.hubspot | INFO | Contact 779698131158 scored: 50/100
+2026-05-17 11:05:25 | app.routes.webhooks | INFO | Score enregistré : 50/100
+2026-05-17 15:06:36 | app.routes.webhooks | INFO | Webhook received — 1 event(s)
+2026-05-17 15:06:36 | app.routes.webhooks | INFO | Nouveau contact : 779547603159 sur portal 148496292
+2026-05-17 15:06:36 | app.services.hubspot | INFO | Scoring contact 779547603159
+2026-05-17 15:06:37 | app.services.hubspot | INFO | Updating contact — ID: 779547603159 — portal: None
+2026-05-17 15:06:38 | app.services.hubspot | INFO | Contact 779547603159 scored: 40/100
+2026-05-17 15:06:38 | app.routes.webhooks | INFO | Score enregistré : 40/100
+2026-05-18 07:45:03 | app.services.hubspot | INFO | Creating contact — email: log.test@example.com — portal: 148496292
+2026-05-18 07:45:03 | app.services.token_manager | ERROR | No token found for portal 148496292
+2026-05-18 07:45:03 | app.services.hubspot_response | ERROR | HubSpot API error 409: Contact already exists. Existing ID: 779493301471 — correlationId: 019e399d-c7e8-7c5f-9268-dfdd758a7daa
+2026-05-18 07:45:03 | app.routes.webhooks | ERROR | HubSpot API error during lead capture: Contact already exists. Existing ID: 779493301471 (status 409)
