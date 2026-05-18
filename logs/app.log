@@ -40,3 +40,19 @@
 2026-05-18 07:45:03 | app.services.token_manager | ERROR | No token found for portal 148496292
 2026-05-18 07:45:03 | app.services.hubspot_response | ERROR | HubSpot API error 409: Contact already exists. Existing ID: 779493301471 — correlationId: 019e399d-c7e8-7c5f-9268-dfdd758a7daa
 2026-05-18 07:45:03 | app.routes.webhooks | ERROR | HubSpot API error during lead capture: Contact already exists. Existing ID: 779493301471 (status 409)
+2026-05-18 07:52:08 | app.services.hubspot | INFO | Creating contact — email: log.test@example.com — portal: 148496292
+2026-05-18 07:52:08 | app.services.token_manager | ERROR | No token found for portal 148496292
+2026-05-18 07:52:09 | app.services.hubspot_response | ERROR | HubSpot API error 409: Contact already exists. Existing ID: 779493301471 — correlationId: 019e39a4-45ae-7348-9b6d-723baec44564
+2026-05-18 07:52:09 | app.routes.webhooks | ERROR | HubSpot API error during lead capture: Contact already exists. Existing ID: 779493301471 (status 409)
+2026-05-18 07:52:09 | app.services.hubspot | INFO | Creating contact — email: log.test@example.com — portal: 148496292
+2026-05-18 07:52:09 | app.services.token_manager | ERROR | No token found for portal 148496292
+2026-05-18 07:52:10 | app.services.hubspot_response | ERROR | HubSpot API error 409: Contact already exists. Existing ID: 779493301471 — correlationId: 019e39a4-488c-7613-959f-0271d2054178
+2026-05-18 07:52:10 | app.routes.webhooks | ERROR | HubSpot API error during lead capture: Contact already exists. Existing ID: 779493301471 (status 409)
+2026-05-18 07:52:20 | app.services.hubspot | INFO | Creating contact — email: log.test@example.com — portal: 148496292
+2026-05-18 07:52:20 | app.services.token_manager | ERROR | No token found for portal 148496292
+2026-05-18 07:52:20 | app.services.hubspot_response | ERROR | HubSpot API error 409: Contact already exists. Existing ID: 779493301471 — correlationId: 019e39a4-7318-76cb-a84d-8bb3f098862e
+2026-05-18 07:52:20 | app.routes.webhooks | ERROR | HubSpot API error during lead capture: Contact already exists. Existing ID: 779493301471 (status 409)
+2026-05-18 08:04:17 | app.services.retry | WARNING | Rate limit hit — retrying in 0.1s (attempt 1/3)
+2026-05-18 08:04:17 | app.services.retry | WARNING | Rate limit hit — retrying in 0.2s (attempt 2/3)
+2026-05-18 08:04:17 | app.services.retry | WARNING | Rate limit hit — retrying in 0.1s (attempt 1/2)
+2026-05-18 08:04:17 | app.services.retry | ERROR | Max retries reached for rate limit error: HubSpot API Error 429: Rate limit exceeded

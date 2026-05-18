@@ -3,6 +3,7 @@ from app.config import settings
 from app.services.token_manager import get_valid_token
 from app.services.lead_scorer import calculate_score
 from app.services.hubspot_response import handle_response
+from app.services.retry import with_retry
 
 from app.logger import setup_logger
 
@@ -43,31 +44,40 @@ def create_contact(properties: dict, portal_id: str = None) -> dict:
     """
     logger.info(f"Creating contact — email: {properties.get('email')} — portal: {portal_id}")
 
+    def _call():
+        response = httpx.post(
+            "https://api.hubapi.com/crm/v3/objects/contacts",
+            headers=get_headers(portal_id),
+            json={"properties": properties}
+        )
+        return handle_response(response)
     
-    response = httpx.post(
-        "https://api.hubapi.com/crm/v3/objects/contacts",
-        headers=get_headers(portal_id),
-        json={"properties": properties}
-    )
-    return handle_response(response)
+    return with_retry(_call)
    
 def update_contact(contact_id: str, properties: dict, portal_id: str = None) -> dict:
     logger.info(f"Updating contact — ID: {contact_id} — portal: {portal_id}")
-    response = httpx.patch(
-        f"https://api.hubapi.com/crm/v3/objects/contacts/{contact_id}",
-        headers=get_headers(portal_id),
-        json={"properties": properties}
-    )
-    return handle_response(response)
+    
+    def _call():
+        response = httpx.patch(
+            f"https://api.hubapi.com/crm/v3/objects/contacts/{contact_id}",
+            headers=get_headers(portal_id),
+            json={"properties": properties}
+        )
+        return handle_response(response)
+
+    return with_retry(_call)
   
 def get_contact_properties(contact_id: str, properties: list, portal_id: str = None) -> dict:
-    response = httpx.get(
-        f"https://api.hubapi.com/crm/v3/objects/contacts/{contact_id}",
-        headers=get_headers(portal_id),
-        params={"properties": ",".join(properties)}
-    )
-    return handle_response(response).get("properties", {})
-  
+    def _call():
+        response = httpx.get(
+            f"https://api.hubapi.com/crm/v3/objects/contacts/{contact_id}",
+            headers=get_headers(portal_id),
+            params={"properties": ",".join(properties)}
+        )
+        return handle_response(response)
+
+    return with_retry(_call)
+
 def score_contact(contact_id: str, portal_id: str = None) -> int:
 
     """
