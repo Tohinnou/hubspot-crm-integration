@@ -10,7 +10,6 @@ class Settings:
     HUBSPOT_CLIENT_ID: str = os.getenv("HUBSPOT_CLIENT_ID")
     HUBSPOT_CLIENT_SECRET: str = os.getenv("HUBSPOT_CLIENT_SECRET")
     HUBSPOT_REDIRECT_URI: str = os.getenv("HUBSPOT_REDIRECT_URI")
-    TOKEN_FILE: str = "tokens.json"
     SCOPES: str = "crm.objects.contacts.read crm.objects.contacts.write crm.objects.deals.read crm.objects.deals.write"
 
 settings = Settings()
