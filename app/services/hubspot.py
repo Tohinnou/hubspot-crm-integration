@@ -3,6 +3,7 @@ from app.config import settings
 from app.services.lead_scorer import calculate_score
 from app.services.hubspot_response import handle_response
 from app.services.retry import with_retry
+from app.services.sync_tracker import track_sync
 from app.services.token_db import get_valid_token_db
 
 
@@ -31,15 +32,39 @@ def get_contacts(portal_id:str) -> dict:
         headers=get_headers(portal_id)
     )
     return handle_response(response)
+
+def get_recent_contacts(portal_id: str, limit: int = 10) -> dict:
+    """Fetch recent contacts (newest first) for the dashboard via the search API."""
+    response = httpx.post(
+        "https://api.hubapi.com/crm/v3/objects/contacts/search",
+        headers=get_headers(portal_id),
+        json={
+            "limit": limit,
+            "properties": [
+                "firstname",
+                "lastname",
+                "email",
+                "lead_score_custom",
+                "lead_source_custom",
+                "createdate",
+            ],
+            # Sort by primary key — createdate sort has indexing lag on fresh contacts.
+            "sorts": [
+                {"propertyName": "hs_object_id", "direction": "DESCENDING"}
+            ],
+        },
+    )
+    return handle_response(response)
   
+@track_sync("create_contact")
 def create_contact(properties: dict, portal_id: str = None) -> dict:
     """
     Create a new contact in HubSpot CRM.
-    
+
     Args:
         properties: Contact fields (firstname, lastname, email, etc.)
         portal_id: HubSpot portal ID. Uses default token if None.
-    
+
     Returns:
         HubSpot API response with contact id and properties.
     """
@@ -52,12 +77,14 @@ def create_contact(properties: dict, portal_id: str = None) -> dict:
             json={"properties": properties}
         )
         return handle_response(response)
-    
+
     return with_retry(_call)
-   
+
+
+@track_sync("update_contact")
 def update_contact(contact_id: str, properties: dict, portal_id: str = None) -> dict:
     logger.info(f"Updating contact — ID: {contact_id} — portal: {portal_id}")
-    
+
     def _call():
         response = httpx.patch(
             f"https://api.hubapi.com/crm/v3/objects/contacts/{contact_id}",
@@ -79,6 +106,7 @@ def get_contact_properties(contact_id: str, properties: list, portal_id: str = N
 
     return with_retry(_call)
 
+@track_sync("score_contact")
 def score_contact(contact_id: str, portal_id: str = None) -> int:
 
     """

@@ -6,3 +6,6 @@ tokens.json
 logs/
 .gstack/
 .claude/
+
+# Local work artifacts (screenshots, scratch)
+*.png

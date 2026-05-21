@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Request, Response
-from app.services.hubspot import score_contact
+from app.services.hubspot import score_contact, create_contact, get_recent_contacts
 from app.models.contact import ContactResponse, ContactCreate
-from app.services.hubspot import create_contact
 from app.exceptions import HubSpotAPIError, RateLimitError
 
 from app.logger import setup_logger
@@ -43,6 +42,39 @@ async def create_new_contact(contact: ContactCreate, portal_id: str = "148496292
         "status": "created"
     }
     
+@router.get("/leads")
+async def list_leads(portal_id: str = "148496292", limit: int = 10, response: Response = None):
+    try:
+        result = get_recent_contacts(portal_id, limit)
+        contacts = result.get("results", [])
+        leads = [
+            {
+                "id": c.get("id"),
+                "firstname": (c.get("properties") or {}).get("firstname") or "",
+                "lastname": (c.get("properties") or {}).get("lastname") or "",
+                "email": (c.get("properties") or {}).get("email") or "",
+                "score": int((c.get("properties") or {}).get("lead_score_custom") or 0),
+                "source": (c.get("properties") or {}).get("lead_source_custom") or "",
+                "created_at": (c.get("properties") or {}).get("createdate") or "",
+            }
+            for c in contacts
+        ]
+        leads.sort(key=lambda x: x["created_at"], reverse=True)
+        return {"status": "ok", "count": len(leads), "leads": leads}
+
+    except HubSpotAPIError as e:
+        if response is not None:
+            response.status_code = 400
+        logger.error(f"HubSpot API error during leads list: {e.message}")
+        return {"status": "error", "message": f"HubSpot API error: {e.message}"}
+
+    except Exception as e:
+        if response is not None:
+            response.status_code = 500
+        logger.error(f"Unexpected error during leads list: {e}")
+        return {"status": "error", "message": "Failed to fetch leads"}
+
+
 @router.post("/leads")
 async def capture_lead(contact: ContactCreate, portal_id: str = "148496292", response: Response = None):
     try:
