@@ -7,5 +7,6 @@ logs/
 .gstack/
 .claude/
 
-# Local work artifacts (screenshots, scratch)
+# Local work artifacts (scratch)
 *.png
+!screenshots/*.png

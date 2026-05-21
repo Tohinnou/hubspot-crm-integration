@@ -4,6 +4,20 @@ Full-stack HubSpot CRM integration with a FastAPI backend, a React lead-capture 
 
 OAuth 2.0 install flow, automatic lead scoring, real-time webhooks, retry with exponential backoff, and a Postgres-backed event log that lets you replay any failed HubSpot call from the dashboard.
 
+## Screenshots
+
+The dashboard combines the lead capture form with a live HubSpot sync monitor. Every API call is tracked; failed calls that have a captured payload can be replayed in one click.
+
+![Dashboard with lead form, recent leads, and sync monitor showing Replay buttons on error rows](screenshots/replay-button-initial.png)
+
+A successful replay shows a green confirmation and a new event row linked back to the original via a `↻ #N` badge:
+
+![Successful replay with green flash and new SUCCESS row linked to event #9](screenshots/replay-flash-success.png)
+
+When HubSpot rejects the replay (here: contact already exists from a previous successful retry), the real API error is surfaced in the dashboard instead of a generic "something went wrong":
+
+![Failed replay with red flash showing the actual HubSpot error message](screenshots/replay-flash-error.png)
+
 ## Features
 
 - **OAuth 2.0 install flow** — one-click install on any HubSpot account; tokens persist in Postgres, refresh automatically before expiry.
