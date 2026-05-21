@@ -3,11 +3,15 @@ from app.routes.oauth import router as oauth_router
 from app.routes.webhooks import router as webhook_router
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.database import create_tables
+
 app = FastAPI(
     title="HubSpot CRM Integration",
     description="API d'intégration HubSpot — Contacts, Deals, OAuth, Webhooks",
     version="1.0.0"
 )
+
+create_tables()
 
 # CORS — autoriser React dev server
 app.add_middleware(

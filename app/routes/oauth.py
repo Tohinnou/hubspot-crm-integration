@@ -2,14 +2,13 @@ from fastapi import APIRouter
 from fastapi.responses import RedirectResponse, HTMLResponse
 import httpx
 from app.config import settings
-from app.services.token_manager import save_tokens, get_valid_token
+from app.services.token_db import save_tokens_db
 from app.services.hubspot import get_contacts
 
 router = APIRouter()
 
 @router.get("/oauth/install")
 def install():
-    print(f"Voici le client id {settings}")
     auth_url = (
         f"https://app.hubspot.com/oauth/authorize"
         f"?client_id={settings.HUBSPOT_CLIENT_ID}"
@@ -32,7 +31,7 @@ async def oauth_callback(code: str):
     )
     tokens = response.json()
     portal_id = str(tokens["hub_id"])
-    save_tokens(portal_id, tokens["access_token"], tokens["refresh_token"], tokens["expires_in"])
+    save_tokens_db(portal_id, tokens["access_token"], tokens["refresh_token"], tokens["expires_in"])
 
     return HTMLResponse(f"""
         <h2>Installation réussie ✅</h2>

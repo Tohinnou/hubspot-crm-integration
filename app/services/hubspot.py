@@ -1,9 +1,10 @@
 import httpx
 from app.config import settings
-from app.services.token_manager import get_valid_token
 from app.services.lead_scorer import calculate_score
 from app.services.hubspot_response import handle_response
 from app.services.retry import with_retry
+from app.services.token_db import get_valid_token_db
+
 
 from app.logger import setup_logger
 
@@ -12,7 +13,7 @@ logger = setup_logger(__name__)
 def get_headers(portal_id: str = None) -> dict:
     if portal_id:
         try:
-            token = get_valid_token(portal_id)
+            token = get_valid_token_db(portal_id)
         except Exception:
             # Fallback sur le token statique de la Private App
             token = settings.HUBSPOT_ACCESS_TOKEN

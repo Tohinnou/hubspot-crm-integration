@@ -35,7 +35,7 @@ Client Browser ──▶ /oauth/install ──▶ HubSpot Authorize
                                               │
                                     /oauth/callback
                                               │
-                                    token_manager.save()
+                                    save_tokens_db()
 ```
 
 ## Tech Stack
@@ -56,9 +56,10 @@ crm-integration/
 │   ├── routes/
 │   │   ├── oauth.py        # OAuth 2.0 endpoints
 │   │   └── webhooks.py     # Webhook handlers + CRM endpoints
+│   ├── database.py         # SQLAlchemy engine + HubSpotToken model
 │   ├── services/
 │   │   ├── hubspot.py      # HubSpot API calls
-│   │   ├── token_manager.py# OAuth token storage & refresh
+│   │   ├── token_db.py     # OAuth token DB storage & refresh
 │   │   └── lead_scorer.py  # Lead scoring logic
 │   └── models/
 │       └── contact.py      # Pydantic models
