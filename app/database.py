@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, DateTime, Text, Integer
+from sqlalchemy import create_engine, Column, String, DateTime, Text, Integer, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -39,10 +39,30 @@ class SyncEvent(Base):
     retry_count = Column(Integer, default=0, nullable=False)
     error_type = Column(String(100), nullable=True)
     error_message = Column(Text, nullable=True)
+    payload_json = Column(Text, nullable=True)
+    retried_from_id = Column(Integer, nullable=True, index=True)
+
+
+# Lightweight, idempotent migrations for columns added after create_all() has
+# already run on this DB. PostgreSQL only.
+_PENDING_MIGRATIONS = [
+    "ALTER TABLE sync_events ADD COLUMN IF NOT EXISTS payload_json TEXT",
+    "ALTER TABLE sync_events ADD COLUMN IF NOT EXISTS retried_from_id INTEGER",
+]
+
+
+def _apply_pending_migrations():
+    with engine.begin() as conn:
+        for stmt in _PENDING_MIGRATIONS:
+            try:
+                conn.execute(text(stmt))
+            except Exception as e:
+                logger.warning(f"Skipped migration '{stmt}': {e}")
 
 
 def create_tables():
     Base.metadata.create_all(bind=engine)
+    _apply_pending_migrations()
     logger.info("Database tables created successfully")
 
 def get_db():

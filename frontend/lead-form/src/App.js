@@ -659,12 +659,14 @@ function StatusPill({ status }) {
   );
 }
 
-function SyncMonitor({ refreshKey }) {
+function SyncMonitor({ refreshKey, onReplayed }) {
   const [stats, setStats] = useState(null);
   const [events, setEvents] = useState([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [replayingIds, setReplayingIds] = useState(() => new Set());
+  const [replayFlash, setReplayFlash] = useState(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -689,6 +691,38 @@ function SyncMonitor({ refreshKey }) {
   useEffect(() => {
     fetchAll();
   }, [fetchAll, refreshKey]);
+
+  const handleReplay = async (id) => {
+    setReplayingIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+    setReplayFlash(null);
+    try {
+      const res = await fetch(`${API_URL}/sync/events/${id}/retry`, {
+        method: "POST",
+      });
+      const data = await res.json().catch(() => ({}));
+      const ok = res.ok && data.status === "ok";
+      setReplayFlash({
+        kind: ok ? "ok" : "err",
+        text: ok
+          ? `Event #${id} replayed successfully`
+          : `Replay failed: ${data.message || res.statusText}`,
+      });
+      await fetchAll();
+      if (ok && onReplayed) onReplayed();
+    } catch (err) {
+      setReplayFlash({ kind: "err", text: "Replay request failed" });
+    } finally {
+      setReplayingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
 
   const fmtTime = (iso) => {
     if (!iso) return "—";
@@ -850,6 +884,25 @@ function SyncMonitor({ refreshKey }) {
         </div>
       )}
 
+      {replayFlash && (
+        <div
+          style={{
+            background:
+              replayFlash.kind === "ok" ? "#f0fdf4" : "#fef2f2",
+            border: `1px solid ${
+              replayFlash.kind === "ok" ? "#bbf7d0" : "#fecaca"
+            }`,
+            color: replayFlash.kind === "ok" ? "#15803d" : "#dc2626",
+            borderRadius: 8,
+            padding: "8px 12px",
+            fontSize: 13,
+            marginBottom: 12,
+          }}
+        >
+          {replayFlash.text}
+        </div>
+      )}
+
       {events.length > 0 && (
         <div
           style={{
@@ -862,7 +915,7 @@ function SyncMonitor({ refreshKey }) {
             style={{
               display: "grid",
               gridTemplateColumns:
-                "110px 140px minmax(0, 1fr) 80px 90px minmax(0, 1.4fr)",
+                "110px 140px minmax(0, 1fr) 80px 90px minmax(0, 1.2fr) 90px",
               gap: 12,
               padding: "10px 14px",
               background: "#f9fafb",
@@ -880,68 +933,121 @@ function SyncMonitor({ refreshKey }) {
             <div>Status</div>
             <div>Duration</div>
             <div>Error</div>
+            <div style={{ textAlign: "right" }}>Action</div>
           </div>
-          {events.map((e) => (
-            <div
-              key={e.id}
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "110px 140px minmax(0, 1fr) 80px 90px minmax(0, 1.4fr)",
-                gap: 12,
-                padding: "10px 14px",
-                borderTop: `1px solid ${theme.border}`,
-                fontSize: 13,
-                alignItems: "center",
-                background:
-                  e.status === "error" ? "#fef2f2" : "#fff",
-              }}
-              className="sync-row"
-            >
-              <div style={{ color: theme.sub, fontFamily: "monospace" }}>
-                {fmtTime(e.created_at)}
-              </div>
-              <div style={{ fontWeight: 600, color: theme.ink }}>
-                {e.operation}
-              </div>
+          {events.map((e) => {
+            const isReplaying = replayingIds.has(e.id);
+            const canReplay = e.status === "error" && e.replayable;
+            return (
               <div
+                key={e.id}
                 style={{
-                  fontFamily: "monospace",
-                  color: theme.sub,
-                  fontSize: 12,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
+                  display: "grid",
+                  gridTemplateColumns:
+                    "110px 140px minmax(0, 1fr) 80px 90px minmax(0, 1.2fr) 90px",
+                  gap: 12,
+                  padding: "10px 14px",
+                  borderTop: `1px solid ${theme.border}`,
+                  fontSize: 13,
+                  alignItems: "center",
+                  background:
+                    e.status === "error" ? "#fef2f2" : "#fff",
                 }}
+                className="sync-row"
               >
-                {e.contact_id || "—"}
+                <div style={{ color: theme.sub, fontFamily: "monospace" }}>
+                  {fmtTime(e.created_at)}
+                </div>
+                <div style={{ fontWeight: 600, color: theme.ink }}>
+                  {e.operation}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "monospace",
+                    color: theme.sub,
+                    fontSize: 12,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                  title={
+                    e.retried_from_id
+                      ? `Retried from event #${e.retried_from_id}`
+                      : ""
+                  }
+                >
+                  {e.contact_id || "—"}
+                  {e.retried_from_id ? (
+                    <span
+                      style={{
+                        marginLeft: 6,
+                        fontSize: 10,
+                        background: theme.border,
+                        color: theme.sub,
+                        padding: "1px 6px",
+                        borderRadius: 999,
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      ↻ #{e.retried_from_id}
+                    </span>
+                  ) : null}
+                </div>
+                <div>
+                  <StatusPill status={e.status} />
+                </div>
+                <div
+                  style={{
+                    fontFamily: "monospace",
+                    color:
+                      e.duration_ms > 2000 ? theme.amber : theme.ink,
+                  }}
+                >
+                  {e.duration_ms} ms
+                </div>
+                <div
+                  style={{
+                    color: theme.red,
+                    fontSize: 12,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                  title={e.error_message || ""}
+                >
+                  {e.error_type || ""}
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  {canReplay ? (
+                    <button
+                      onClick={() => handleReplay(e.id)}
+                      disabled={isReplaying}
+                      title="Replay this failed sync"
+                      style={{
+                        background: isReplaying
+                          ? "#9ca3af"
+                          : theme.orange,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 6,
+                        padding: "5px 10px",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: isReplaying ? "wait" : "pointer",
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      {isReplaying ? "..." : "↻ Replay"}
+                    </button>
+                  ) : (
+                    <span style={{ color: theme.sub, fontSize: 12 }}>
+                      —
+                    </span>
+                  )}
+                </div>
               </div>
-              <div>
-                <StatusPill status={e.status} />
-              </div>
-              <div
-                style={{
-                  fontFamily: "monospace",
-                  color:
-                    e.duration_ms > 2000 ? theme.amber : theme.ink,
-                }}
-              >
-                {e.duration_ms} ms
-              </div>
-              <div
-                style={{
-                  color: theme.red,
-                  fontSize: 12,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-                title={e.error_message || ""}
-              >
-                {e.error_type || ""}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </>
@@ -1003,7 +1109,10 @@ export default function App() {
             gridColumn: "1 / -1",
           }}
         >
-          <SyncMonitor refreshKey={refreshKey} />
+          <SyncMonitor
+            refreshKey={refreshKey}
+            onReplayed={() => setRefreshKey((k) => k + 1)}
+          />
         </section>
       </main>
 
@@ -1035,10 +1144,13 @@ export default function App() {
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
           }
           .sync-row {
-            grid-template-columns: 80px 110px minmax(0, 1fr) 70px !important;
+            grid-template-columns: 70px 100px minmax(0, 1fr) 60px 80px !important;
           }
           .sync-row > :nth-child(5), .sync-row > :nth-child(6) {
             display: none !important;
+          }
+          .sync-row > :nth-child(7) {
+            grid-column: 5 !important;
           }
         }
         input:focus, select:focus {
